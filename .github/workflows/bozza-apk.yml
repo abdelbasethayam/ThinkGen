@@ -45,6 +45,21 @@ jobs:
           test -f "$RUNNER_TEMP/bozza-source/android/app/build.gradle"
           test -f "$RUNNER_TEMP/bozza-source/android/app/src/main/AndroidManifest.xml"
 
+      - name: Fix AndroidX biometric host activities
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("${{ runner.temp }}") / "bozza-source/android/app/src/main/java/com/bozza/ai"
+          for name in ("MainActivity.java", "DeveloperActivity.java", "PrivateBrowserActivity.java"):
+              path = root / name
+              source = path.read_text(encoding="utf-8")
+              source = source.replace("import android.app.Activity;", "import androidx.fragment.app.FragmentActivity;")
+              source = source.replace("extends Activity", "extends FragmentActivity")
+              path.write_text(source, encoding="utf-8")
+          PY
+
       - name: Set up Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
