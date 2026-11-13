@@ -50,6 +50,25 @@ POLICIES = [
     "P6 · N2A utility-aware",
 ]
 
+def execute_tool(case_name):
+    """Execute one of the sandbox's local, read-only tools."""
+    if case_name == "Arithmetic":
+        result = 17 * 19
+        return str(result), f"Calculator executed 17 × 19 = {result}."
+    if case_name == "Private record lookup":
+        records = {"2024_revenue_millions": 8.0, "2025_revenue_millions": 10.0}
+        growth = (records["2025_revenue_millions"] - records["2024_revenue_millions"]) / records["2024_revenue_millions"] * 100
+        return f"{growth:.1f}%", f"Lookup retrieved {records}; calculator computed growth = {growth:.1f}%."
+    if case_name == "Multi-step retrieval + calculation":
+        sales = {"Q1_units": 1200, "Q2_units": 1500}
+        increase = (sales["Q2_units"] - sales["Q1_units"]) / sales["Q1_units"] * 100
+        return f"{increase:.1f}%", f"Lookup retrieved {sales}; calculator computed increase = {increase:.1f}%."
+    if case_name == "Stable general knowledge":
+        mock_index = {"capital_of_france": "Paris"}
+        return mock_index["capital_of_france"], "Mock search queried the local fixed index."
+    raise ValueError("Unknown sandbox tool scenario.")
+
+
 def tool_ok(case_name, reliability):
     if reliability >= 100:
         return True
@@ -93,8 +112,12 @@ def run(policy, name, reliability, cost, risk, value, threshold, bias, authorize
     tool_success = None
     if call:
         tool_success = tool_ok(name, reliability)
-        answer = c["tool_answer"] if tool_success else "Tool failed; no verified answer."
-        trace.append(("Tool", c["tool_result"] if tool_success else "Tool returned an unreliable result."))
+        if tool_success:
+            answer, tool_message = execute_tool(name)
+            trace.append(("Tool", tool_message))
+        else:
+            answer = "Tool failed; no verified answer."
+            trace.append(("Tool", "Tool returned an unreliable result."))
     else:
         answer = c["no_tool"]
         trace.append(("Tool", "No tool was invoked."))
