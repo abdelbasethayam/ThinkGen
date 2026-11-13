@@ -1,27 +1,39 @@
----
-title: ThinkGen
-emoji: 🧠
-colorFrom: blue
-colorTo: green
-sdk: streamlit
-sdk_version: 1.32.0
-app_file: src/streamlit_app.py
-pinned: false
----
+# N2A Lab Lite
 
-# ThinkGen — Adaptive Socratic Learning Assistant
+Interactive sandbox for exploring when an LLM agent should call a tool, when a call is unnecessary, and how cost and risk change the decision.
 
-**Group 45 | CSAI 810**
+> **Scientific status:** v0.1 is a deterministic teaching simulator with hand-authored synthetic scenarios. It is not an LLM benchmark reproduction, does not extract hidden states, and does not establish that N2A outperforms existing methods.
 
-## Setup
-1. Create a Groq API key from https://console.groq.com
-2. On Hugging Face Spaces: Settings → Repository secrets → add `GROQ_API_KEY`
-3. That's it!
+## Run locally
 
-## How it works
-- Student selects a GenAI concept
-- Model asks 7 progressive Socratic questions
-- Each answer is evaluated strictly (gibberish = score 1 automatically)
-- Progress bar updates with weighted scoring (harder questions worth more)
-- Conceptual gap explanation appears with every answer
-- Final report summarizes knowledge gaps and next steps
+```bash
+pip install -r n2a_lite/requirements.txt
+streamlit run n2a_lite/app.py
+```
+
+## Deploy for free
+
+This branch is ready for Streamlit Community Cloud:
+
+- Repository: `abdelbasethayam/ThinkGen`
+- Branch: `n2a-lite`
+- Entrypoint: `n2a_lite/app.py`
+
+Open https://share.streamlit.io/, sign in with GitHub, create an app, enter the repository, branch, and entrypoint above, then deploy.
+
+## What is included
+
+- Five decision policies: no-tool, always-tool, confidence threshold, self-assessment, and N2A utility-aware.
+- Four hand-authored scenarios.
+- Controls for tool reliability, call cost, risk penalty, value of success, decision threshold, self-assessment bias, and authorization.
+- Side-by-side results, execution traces, CSV export, and JSON trace export.
+- GitHub Actions smoke check for Python syntax and dependencies.
+
+## Research roadmap
+
+1. Integrate official When2Tool benchmark data and reproduce its baselines.
+2. Add a black-box LLM adapter with explicit key management and rate limits.
+3. Add a white-box open-weight runner for hidden-state extraction and probe training.
+4. Evaluate necessity, calibration, over/under-calling, and realized net utility on fixed benchmark splits.
+
+The original `main` branch is unchanged; N2A Lite lives on the isolated `n2a-lite` branch.
